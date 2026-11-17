@@ -1,0 +1,42 @@
+[build-system]
+requires = ["flit_core==4.1.0"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "hosted-runner-lint"
+version = "0.1.0"
+description = "Check that every GitHub Actions job runs on a GitHub-hosted standard runner, never a self-hosted one."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Curlew Labs" }]
+# The python3 the current Ubuntu hosted runner image ships; the package's
+# __init__ refuses anything older with a message.
+requires-python = ">=3.12"
+# Nothing from PyPI: the package runs on the standard library, plus git and
+# mikefarah's yq on PATH, which list and parse the workflows.
+dependencies = []
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Topic :: Software Development :: Quality Assurance",
+]
+
+[project.scripts]
+hosted-runner-lint = "hosted_runner_lint.cli:main"
+
+[project.urls]
+Repository = "https://github.com/curlewlabs-com/hosted-runner-lint"
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+extend-select = ["I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+files = ["src", "tests"]

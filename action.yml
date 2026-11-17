@@ -1,0 +1,13 @@
+name: hosted-runner-lint
+description: Fail on any workflow job that does not run on a GitHub-hosted standard runner.
+author: Curlew Labs
+branding:
+  icon: server
+  color: gray-dark
+
+runs:
+  using: composite
+  steps:
+    - name: Judge every workflow job runner
+      shell: sh
+      run: '"$GITHUB_ACTION_PATH/action/run.sh"'
