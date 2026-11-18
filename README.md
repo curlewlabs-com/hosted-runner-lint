@@ -46,7 +46,7 @@ As a command, from inside a repository, with `git` and
 macOS runner images ship both):
 
 ```sh
-pip install git+https://github.com/curlewlabs-com/hosted-runner-lint@v0.1.0
+pip install git+https://github.com/curlewlabs-com/hosted-runner-lint@v0.1.1
 hosted-runner-lint                         # every tracked workflow
 hosted-runner-lint .github/workflows/a.yml # just this one
 ```

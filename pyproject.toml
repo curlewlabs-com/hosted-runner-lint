@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "hosted-runner-lint"
-version = "0.1.0"
+version = "0.1.1"
 description = "Check that every GitHub Actions job runs on a GitHub-hosted standard runner, never a self-hosted one."
 readme = "README.md"
 license = "MIT OR Apache-2.0"
