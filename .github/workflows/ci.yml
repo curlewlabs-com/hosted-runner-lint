@@ -68,17 +68,24 @@ jobs:
           persist-credentials: false
       - name: This repository passes
         uses: ./
-      - name: Add a finding, and a module named like the lint's
+      - name: Add a finding, and modules named like the lint's and json
         # A repository being judged can hold a file named like the lint's own
-        # package; were it imported in place of the lint, it would pass.
+        # package or a standard module it imports; were either imported in its
+        # place, the lint would pass. The json stand-in reads every
+        # workflow as one with no jobs.
         run: |
           printf 'on: push\njobs:\n  a:\n    runs-on: self-hosted\n' > .github/workflows/bad.yml
           printf 'pass\n' > hosted_runner_lint.py
-          git add .github/workflows/bad.yml hosted_runner_lint.py
+          printf 'def loads(*args, **kwargs):\n    return {"jobs": {}}\n' > json.py
+          git add .github/workflows/bad.yml hosted_runner_lint.py json.py
       - name: The action reports the finding
         id: judged
         continue-on-error: true
         uses: ./
+        # An inherited import path naming the judged directory must not put
+        # those files back in front of the lint's own.
+        env:
+          PYTHONPATH: .
       - name: Require that it failed
         env:
           OUTCOME: ${{ steps.judged.outcome }}

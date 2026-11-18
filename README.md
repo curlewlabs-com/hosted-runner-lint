@@ -46,7 +46,7 @@ As a command, from inside a repository, with `git` and
 macOS runner images ship both):
 
 ```sh
-pip install git+https://github.com/curlewlabs-com/hosted-runner-lint@v0.1.0
+pip install git+https://github.com/curlewlabs-com/hosted-runner-lint@v0.1.1
 hosted-runner-lint                         # every tracked workflow
 hosted-runner-lint .github/workflows/a.yml # just this one
 ```
@@ -54,6 +54,12 @@ hosted-runner-lint .github/workflows/a.yml # just this one
 It prints one line per finding and exits 1 on any. It also exits 1, with the
 reason on stderr, when it could not run (no `git` or `yq`, a file `yq` cannot
 parse), so a lint that did not run never reads as clean.
+
+The action imports from its own package alone, whatever `PYTHONPATH` the job
+sets. The command, like any Python program, imports through the `PYTHONPATH` it
+inherits, ahead of the standard library: leave out any entry naming the
+repository being judged, or a file there named like a module the lint imports
+runs in its place.
 
 ## What it accepts
 
