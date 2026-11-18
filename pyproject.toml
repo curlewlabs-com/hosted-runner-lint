@@ -7,8 +7,8 @@ name = "hosted-runner-lint"
 version = "0.1.0"
 description = "Check that every GitHub Actions job runs on a GitHub-hosted standard runner, never a self-hosted one."
 readme = "README.md"
-license = "MIT"
-license-files = ["LICENSE"]
+license = "MIT OR Apache-2.0"
+license-files = ["LICENSE-MIT", "LICENSE-APACHE"]
 authors = [{ name = "Curlew Labs" }]
 # The python3 the current Ubuntu hosted runner image ships; the package's
 # __init__ refuses anything older with a message.
