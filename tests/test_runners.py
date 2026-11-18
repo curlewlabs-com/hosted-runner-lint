@@ -79,7 +79,7 @@ class Expressions(unittest.TestCase):
     def test_a_matrix_key_matches_in_any_case(self) -> None:
         # GitHub's contexts ignore case, so `RUNNER` is the same variable as
         # `runner` and its configuration is scheduled too.
-        job = {
+        job: dict[str, object] = {
             "runs-on": "${{ matrix.runner }}",
             "strategy": {
                 "matrix": {

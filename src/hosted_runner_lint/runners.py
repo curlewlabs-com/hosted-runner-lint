@@ -20,7 +20,7 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TypeGuard
 
 # GitHub's table of standard runners for public repositories, verbatim:
 # https://docs.github.com/en/actions/reference/runners/github-hosted-runners
@@ -64,24 +64,35 @@ class Finding:
         return f"{self.path}: job {self.job}: {self.what}"
 
 
+# isinstance narrows Any to a container of Unknown, which strict pyright rejects;
+# these keep the isinstance test itself and only say what the contents are.
+def _is_mapping(value: object) -> TypeGuard[Mapping[str, Any]]:
+    return isinstance(value, Mapping)
+
+
+def _is_list(value: object) -> TypeGuard[list[Any]]:
+    return isinstance(value, list)
+
+
 def _same_key(key: str, mapping: Mapping[str, Any]) -> list[object]:
     return [value for name, value in mapping.items() if name.lower() == key.lower()]
 
 
 def _matrix_values(job: Mapping[str, Any], key: str) -> list[object] | None:
-    matrix = (job.get("strategy") or {}).get("matrix")
-    if not isinstance(matrix, Mapping):
+    strategy: Any = job.get("strategy") or {}
+    matrix = strategy.get("matrix")
+    if not _is_mapping(matrix):
         return None
     values: list[object] = []
     for listed in _same_key(key, matrix):
-        if not isinstance(listed, list):
+        if not _is_list(listed):
             return None
         values.extend(listed)
-    include = matrix.get("include") or []
-    if not isinstance(include, list):
+    include: Any = matrix.get("include") or []
+    if not _is_list(include):
         return None
     for entry in include:
-        if not isinstance(entry, Mapping):
+        if not _is_mapping(entry):
             return None
         values.extend(_same_key(key, entry))
     return values or None
@@ -90,13 +101,13 @@ def _matrix_values(job: Mapping[str, Any], key: str) -> list[object] | None:
 def _labels(job: Mapping[str, Any]) -> tuple[list[object], list[str]]:
     """The labels a job's runs-on names, and what about it could not be read."""
     runs_on = job.get("runs-on")
-    if isinstance(runs_on, Mapping):
-        problems = []
+    if _is_mapping(runs_on):
+        problems: list[str] = []
         if "group" in runs_on:
             problems.append("runs-on names a runner group")
         labels = runs_on.get("labels", [])
-        return (labels if isinstance(labels, list) else [labels]), problems
-    if isinstance(runs_on, list):
+        return (labels if _is_list(labels) else [labels]), problems
+    if _is_list(runs_on):
         return list(runs_on), []
     return [runs_on], []
 
@@ -120,14 +131,14 @@ def _judge_label(job: Mapping[str, Any], label: object) -> list[str]:
 
 
 def judge(path: str, workflow: object) -> list[Finding]:
-    if not isinstance(workflow, Mapping):
+    if not _is_mapping(workflow):
         return [Finding(path, "-", "the file is not a workflow mapping")]
     jobs = workflow.get("jobs")
-    if not isinstance(jobs, Mapping):
+    if not _is_mapping(jobs):
         return [Finding(path, "-", "the workflow has no jobs mapping")]
     findings: list[Finding] = []
     for name, job in jobs.items():
-        if not isinstance(job, Mapping):
+        if not _is_mapping(job):
             findings.append(Finding(path, str(name), "the job is not a mapping"))
             continue
         if "uses" in job and "runs-on" not in job:
