@@ -18,8 +18,12 @@ These are the checks CI runs on every push and pull request:
 ```sh
 python3 -m unittest discover -s tests -t .
 python3 -m pip install -r requirements-dev.txt
-ruff format --check . && ruff check . && mypy && shellcheck action/run.sh
+mypy
 ```
+
+CI's `baseline` job also runs the formatting and lint checks every Curlew Labs
+repository shares (ruff, shellcheck, actionlint and others) through the
+[ci-baseline](https://github.com/curlewlabs-com/ci-baseline) action.
 
 ## Conventions
 
