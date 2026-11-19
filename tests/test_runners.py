@@ -99,6 +99,17 @@ class Expressions(unittest.TestCase):
         }
         self.assertEqual(len(whats(one_job(job))), 1)
 
+    def test_a_strategy_that_is_not_a_mapping_is_refused(self) -> None:
+        # A list is an invalid workflow and an expression is known only at run
+        # time; either way the label is unreadable, and the lint once crashed
+        # on the strategy's shape instead of saying so.
+        for strategy in (["matrix"], "${{ fromJSON(needs.a.outputs.s) }}"):
+            job = {"runs-on": "${{ matrix.runner }}", "strategy": strategy}
+            self.assertEqual(
+                whats(one_job(job)),
+                ["runs-on ${{ matrix.runner }} cannot be read from a literal matrix"],
+            )
+
     def test_a_matrix_key_with_no_values_is_refused(self) -> None:
         job = {"runs-on": "${{ matrix.os }}", "strategy": {"matrix": {"v": [1]}}}
         self.assertEqual(len(whats(one_job(job))), 1)
