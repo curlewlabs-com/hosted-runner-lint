@@ -79,7 +79,9 @@ def _same_key(key: str, mapping: Mapping[str, Any]) -> list[object]:
 
 
 def _matrix_values(job: Mapping[str, Any], key: str) -> list[object] | None:
-    strategy: Any = job.get("strategy") or {}
+    strategy = job.get("strategy")
+    if not _is_mapping(strategy):
+        return None
     matrix = strategy.get("matrix")
     if not _is_mapping(matrix):
         return None
